@@ -97,8 +97,7 @@ def output_fully_connected_features_to_graph(features_numpy, delta_layer_index=1
         for layer_index in range(0, len(image_features)):
             cur_layer_features_cnt = image_features[layer_index].shape[-1]
             for cur_layer_feature_index in range(0, cur_layer_features_cnt):
-                v_info_str = str("v " + str(graph_v_index) + " " + get_v_label(layer_index + delta_layer_index,
-                                                                               cur_layer_feature_index))
+                v_info_str = str("v " + str(graph_v_index) + " " + get_v_label(layer_index + delta_layer_index, cur_layer_feature_index))
                 # print(v_info_str)
                 write_to_file("./outputs/test-output-graph.txt", v_info_str)
                 graph_v_index += 1
@@ -112,16 +111,16 @@ def output_fully_connected_features_to_graph(features_numpy, delta_layer_index=1
                     cur_layer_feature_maps = image_features[layer_index]
                     cur_layer_feature_map = get_tensor_by_last_axis(cur_layer_feature_maps, cur_layer_feature_index)
                     # if():cur_layer_feature_map,待补充
-                    for next_layer_feature_index in range(0, next_layer_features_cnt):
-                        next_layer_feature_maps = image_features[layer_index + 1]
-                        next_layer_feature_map = get_tensor_by_last_axis(next_layer_feature_maps,
-                                                                         next_layer_feature_index)
-                        e_info_str = str("e " + str(cur_layer_feature_index) + " " + str(
-                            next_layer_feature_index + cur_layer_features_cnt) + " " + get_v_label(
-                            layer_index + delta_layer_index, cur_layer_feature_index) + "-" + get_v_label(
-                            layer_index + delta_layer_index + 1, next_layer_feature_index))
-                        # print(e_info_str)
-                        write_to_file("./outputs/test-output-graph.txt", e_info_str)
+                    if(np.sum(cur_layer_feature_map)>0):
+                        for next_layer_feature_index in range(0, next_layer_features_cnt):
+                            #next_layer_feature_maps = image_features[layer_index + 1]
+                            #next_layer_feature_map = get_tensor_by_last_axis(next_layer_feature_maps, next_layer_feature_index)
+                            e_info_str = str("e " + str(cur_layer_feature_index) + " " + str(
+                                next_layer_feature_index + cur_layer_features_cnt) + " " + get_v_label(
+                                layer_index + delta_layer_index, cur_layer_feature_index) + "-" + get_v_label(
+                                layer_index + delta_layer_index + 1, next_layer_feature_index))
+                            # print(e_info_str)
+                            write_to_file("./outputs/test-output-graph.txt", e_info_str)
 
 
 def get_v_label(layer_index, cur_layer_feature_index):
@@ -184,41 +183,17 @@ def convert_tensor_2_scalar(tensor, op):
 
 base_model = VGG16(weights='imagenet')
 base_model.summary()
-# for layer in base_model.layers:
-#    print(layer.output)
-#    print(\"layer.input_shape:\")
-#    print(layer.input_shape)
-#
-#    weights = layer.get_weights()
-#    print(\"weight.shape:\")
-#    for weight in weights:
-#        print(weight.shape)
-#
-#    print(\"layer.output_shape:\")
-#    print(layer.output_shape)
 layer_model = Model(inputs=base_model.input, outputs=base_model.layers[18].output)
-# print(len(base_model.layers))
-# print(base_model.layers)
 img_path = 'D:\\workspace\\JupyterNotebook\\keras learning\\imagenet.jpg'
 img = image.load_img(img_path, target_size=(224, 224))
 x = image.img_to_array(img)
-print("origin image size: " + str(x.shape))
-# write_to_file("./outputs/test-output.txt",str(x))
 x = np.expand_dims(x, axis=0)
 x = preprocess_input(x)
-# print(len(x[0][0][0]))
 features = layer_model.predict(x)
-
-for image in features:
-    print_feature_map_infos(image)
-
-if (features[0].ndim == 3):
-    pylab.imshow(features[0][:, :, 0])
-    pylab.show()
 
 layers_len = len(base_model.layers)
 # out_put=get_output_from_layers(base_model,1,layers_num,x)
 # output_fully_connected_features_to_graph(out_put)
 
-# out_put = get_output_numpy_from_layers(base_model, 21, layers_len, x)
-# output_fully_connected_features_to_graph(out_put, 21)
+out_put = get_output_numpy_from_layers(base_model, 16, 18, x)
+output_fully_connected_features_to_graph(out_put, 16)
