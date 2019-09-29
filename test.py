@@ -5,6 +5,7 @@ from keras.models import Model
 import numpy as np
 import pylab
 
+'''
 base_model = VGG16(weights='imagenet')
 base_model.summary()
 # for layer in base_model.layers:
@@ -31,10 +32,23 @@ x = np.expand_dims(x, axis=0)
 x = preprocess_input(x)
 # print(len(x[0][0][0]))
 features = layer_model.predict(x)
+'''
+a=np.zeros(shape=(1,2,2,3))
+b=np.ones(shape=(1,2,2,3))
+c=np.concatenate((a,b),axis=1)
+d=np.ones(shape=(1,2,2,3))
+e=np.concatenate((c,d),axis=1)
+print("------------a----------------")
+print(a)
+print("------------b----------------")
+print(b)
+print("------------c----------------")
+print(c.shape)
+print(c)
+print("------------e----------------")
+print(e.shape)
+print(e)
 
-#for image in features:
-#    print_feature_map_infos(image)
-
-if (features[0].ndim == 3):
-    pylab.imshow(features[0][:, :, 0])
-    pylab.show()
+print("------------new----------------")
+print(a[0][:,:,0])
+print(e[0][:,:,0])
